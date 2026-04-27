@@ -1,0 +1,33 @@
+﻿{
+  "environments": [
+    {
+      "COMMON_BUILD_ROOT": "${projectDir}\\build\\${name}",
+      "COMMON_INSTALL_ROOT": "${projectDir}\\bin\\${name}"
+    }
+  ],
+  "configurations": [
+    {
+      "name": "x64-Debug",
+      "generator": "Ninja",
+      "configurationType": "Debug",
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "buildRoot": "${env.COMMON_BUILD_ROOT}",
+      "installRoot": "${env.COMMON_INSTALL_ROOT}",
+      "variables": [
+        {
+          "name": "USE_DEBUG_FEATURES",
+          "value": "ON",
+          "type": "BOOL"
+        }
+      ]
+    },
+    {
+      "name": "x64-Release",
+      "generator": "Ninja",
+      "configurationType": "Release",
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "buildRoot": "${env.COMMON_BUILD_ROOT}",
+      "installRoot": "${env.COMMON_INSTALL_ROOT}"
+    }
+  ]
+}
