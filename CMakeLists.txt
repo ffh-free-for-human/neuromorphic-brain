@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
 # main file
-add_executable(neuromorphic-brain src/main.cpp)
+add_executable(neuromorphic-brain src/main.cpp "src/brain/Brains.h" "src/brain/Brains.cpp" "src/brain/IBrain.h" "src/params.h")
 
 if(USE_DEBUG_FEATURES)
     # add macro for C++ code
