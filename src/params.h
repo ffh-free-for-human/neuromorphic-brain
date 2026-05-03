@@ -1,5 +1,6 @@
 #pragma once
 #include"brains/NeuronCloud/NeuronCloudConst.h"
+#include"brains/BrainsConst.h"
 
 #include<stdint.h>
 #include<iostream>
@@ -39,13 +40,13 @@ const std::vector<ParamDescription> SCHEME =
     "--max-neurons",
     true,
     "max count neurons inside brains",
-    "[0, " + std::to_string(NEURONS_MAX_COUNT) + "]",
+    "[0, " + std::to_string(BRAINS_MAX_NEURONS) + "]",
     [](std::string_view v, BrainParams& p)
     {
       try
       {
         auto val = std::stoull(std::string(v));
-        if (val > NEURONS_MAX_COUNT || val < 0) return false;
+        if (val > BRAINS_MAX_NEURONS || val < 0) return false;
         p.max_neurons = val;
         return true;
       }
@@ -56,13 +57,13 @@ const std::vector<ParamDescription> SCHEME =
     "--init-neurons",
     true,
     "initial neurons inside brains",
-    "[0, " + std::to_string(NEURONS_MAX_INIT) + "]",
+    "[0, " + std::to_string(BRAINS_MAX_INIT_NEURONS) + "]",
     [](std::string_view v, BrainParams& p)
     {
       try
       {
         auto val = std::stoull(std::string(v));
-        if (val > NEURONS_MAX_INIT || val < 0) return false;
+        if (val > BRAINS_MAX_INIT_NEURONS || val < 0) return false;
         p.init_neurons = val;
         return true;
       }

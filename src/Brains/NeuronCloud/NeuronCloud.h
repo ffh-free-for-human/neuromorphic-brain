@@ -1,6 +1,7 @@
 #pragma once
 #include"NeuronCloudConst.h"
 
+#include <cstdint>
 #include<vector>
 
 enum class NeuronCloudState : uint8_t
@@ -10,7 +11,9 @@ enum class NeuronCloudState : uint8_t
   /* must wait next tick */
   New,
   /* can used inside process */
-  Exist
+  Exist,
+  /* must be deleted */
+  Dead,
 };
 
 enum class NeuronState : uint8_t {
@@ -22,10 +25,15 @@ enum class NeuronState : uint8_t {
   Fatigued,
 };
 
-
+/*
+  Use setupNeuronsInitialParams before start "thinking" (process)
+*/
 class NeuronCloud {
 public:
-  NeuronCloud(uint16_t cloud_size = NEURONS_CLOUD_BASE_SIZE, uint16_t neurons_threshold = NEURONS_THRESHOLD);
+  NeuronCloud(uint16_t cloud_size);
+
+
+  void setupNeuronsInitialParams(uint16_t membrana_potential_init, uint16_t threshold, uint8_t signal_weight, uint8_t refractory_time);
 
   uint16_t getCount() const;
   /* update membrana potential , refractory */
@@ -41,6 +49,12 @@ public:
 private:
   uint16_t active_count = 0;
   uint16_t capacity = UINT16_MAX;
+
+  // Initial params
+  uint16_t membrana_potential_init;
+  uint16_t threshold;
+  uint8_t  signal_weight;
+  uint8_t  refractory_time;
 
   // Neuron params (SoA)
   std::vector<float> x;

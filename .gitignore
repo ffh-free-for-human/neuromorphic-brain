@@ -1,3 +1,4 @@
 # build folders ignore
 build
 bin
+.vs
