@@ -1,23 +1,25 @@
 #pragma once
+#include"brains/NeuronCloud/NeuronCloudConst.h"
 
 #include<stdint.h>
 #include<iostream>
-
 #include<string>
 #include<string_view>
 #include<vector>
 #include<optional>
 #include<functional>
 
-const uint64_t MAX_NEURONS = UINT64_MAX;
-const uint64_t MAX_INIT_NEURONS = UINT64_MAX;
-const uint16_t MAX_NEURON_THRESHOLD = 1000u;
+const uint64_t MAX_SYNAPSES      = UINT64_MAX;
+const uint64_t MAX_INIT_SYNAPSES = UINT64_MAX;
 
-typedef struct SParams
+struct BrainParams
 {
-  uint64_t max_neurons = 0;
-  uint64_t init_neurons = 0;
+  uint64_t max_neurons      = 0;
+  uint64_t init_neurons     = 0;
   uint16_t neuron_threshold = 0;
+
+  uint64_t max_synapses  = 0;
+  uint64_t init_synapses = 0;
 };
 
 // params metadata
@@ -26,8 +28,8 @@ struct ParamDescription {
   bool required;
   std::string description;
   std::string allowed_values;
-  // Функция-обработчик: берет строку и записывает результат в структуру SParams
-  std::function<bool(std::string_view, SParams&)> parser;
+  // Parser: take string and write result inside BrainParams
+  std::function<bool(std::string_view, BrainParams&)> parser;
 };
 
 // Список всех доступных параметров
@@ -37,12 +39,14 @@ const std::vector<ParamDescription> SCHEME =
     "--max-neurons",
     true,
     "max count neurons inside brains",
-    "[0, " + std::to_string(MAX_NEURONS) + "]",
-    [](std::string_view v, SParams& p)
+    "[0, " + std::to_string(NEURONS_MAX_COUNT) + "]",
+    [](std::string_view v, BrainParams& p)
     {
       try
       {
-        p.max_neurons = std::stoull(std::string(v)); 
+        auto val = std::stoull(std::string(v));
+        if (val > NEURONS_MAX_COUNT || val < 0) return false;
+        p.max_neurons = val;
         return true;
       }
       catch (...) { return false; }
@@ -52,12 +56,14 @@ const std::vector<ParamDescription> SCHEME =
     "--init-neurons",
     true,
     "initial neurons inside brains",
-    "[0, " + std::to_string(MAX_INIT_NEURONS) + "]",
-    [](std::string_view v, SParams& p)
+    "[0, " + std::to_string(NEURONS_MAX_INIT) + "]",
+    [](std::string_view v, BrainParams& p)
     {
       try
       {
-        p.init_neurons = std::stoull(std::string(v));
+        auto val = std::stoull(std::string(v));
+        if (val > NEURONS_MAX_INIT || val < 0) return false;
+        p.init_neurons = val;
         return true;
       }
       catch (...) { return false; }
@@ -65,16 +71,51 @@ const std::vector<ParamDescription> SCHEME =
   },
   {
     "--neuron-threshold",
-    true,
+    false,
     "membrana treshold for neuron activation",
-    "[0, " + std::to_string(MAX_NEURON_THRESHOLD) + "]",
+    "[0, " + std::to_string(NEURONS_THRESHOLD_MAX) + "]",
     
-    [](std::string_view v, SParams& p)
+    [](std::string_view v, BrainParams& p)
     {
       try {
         auto val = std::stoul(std::string(v));
-        if (val > MAX_NEURON_THRESHOLD) return false;
+        if (val > NEURONS_THRESHOLD_MAX || val < 0) return false;
         p.neuron_threshold = static_cast<uint16_t>(val);
+        return true;
+      }
+      catch (...) { return false; }
+    }
+  },
+  // synapses
+  {
+    "--max-synapses",
+    true,
+    "max count synapses inside brains",
+    "[0, " + std::to_string(MAX_SYNAPSES) + "]",
+    [](std::string_view v, BrainParams& p)
+    {
+      try
+      {
+        auto val = std::stoull(std::string(v));
+        if (val > MAX_SYNAPSES || val < 0) return false;
+        p.max_synapses = val;
+        return true;
+      }
+      catch (...) { return false; }
+    }
+  },
+  {
+    "--init-synapses",
+    true,
+    "initial synapses inside brains",
+    "[0, " + std::to_string(MAX_INIT_SYNAPSES) + "]",
+    [](std::string_view v, BrainParams& p)
+    {
+      try
+      {
+        auto val = std::stoull(std::string(v));
+        if (val > MAX_INIT_SYNAPSES || val < 0) return false;
+        p.init_synapses = val;
         return true;
       }
       catch (...) { return false; }
@@ -93,7 +134,7 @@ void printHelp()
   }
 }
 
-SParams readParams(int argc, char* argv[])
+BrainParams readParams(int argc, char* argv[])
 {
   if (argc == 1)
   {
@@ -101,14 +142,14 @@ SParams readParams(int argc, char* argv[])
     exit(0);
   }
 
-  SParams params;
+  BrainParams params;
   std::vector<std::string_view> args(argv, argv + argc);
 
-  for (size_t i = 1; i < args.size(); ++i)
+  for (const auto& desc : SCHEME)
   {
     bool found = false;
 
-    for (const auto& desc : SCHEME)
+    for (size_t i = 1; i < args.size(); ++i)
     {
       if (args[i] == desc.name)
       {
@@ -131,10 +172,10 @@ SParams readParams(int argc, char* argv[])
       }
     }
 
-    if (!found)
+    if (!found && desc.required)
     {
-      printHelp();
-      exit(0);
+      std::cerr << "Error: Param " << desc.name << " required.\n";
+      exit(1);
     }
   }
 

@@ -4,12 +4,12 @@ cmake_minimum_required(VERSION 3.10)
 project(neuromorphic-brain)
 
 # C++ standard
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
 # main file
-add_executable(neuromorphic-brain src/main.cpp "src/brain/Brains.h" "src/brain/Brains.cpp" "src/brain/IBrain.h" "src/params.h")
+add_executable(neuromorphic-brain src/main.cpp "src/brains/Brains.h" "src/brains/Brains.cpp"  "src/params.h" "src/brains/NeuronCloud/NeuronCloud.h" "src/brains/NeuronCloud/NeuronCloud.cpp" "src/brains/NeuronCloud/NeuronCloudConst.h")
 
 if(USE_DEBUG_FEATURES)
     # add macro for C++ code
@@ -20,6 +20,3 @@ if(USE_DEBUG_FEATURES)
     
     message(STATUS "--- Debug build ON ---")
 endif()
-
-# compiled program install
-install(TARGETS neuromorphic-brain DESTINATION bin)
